@@ -1,0 +1,8 @@
+# originais pesados (com EXIF/GPS): a página usa as versões em assets/photos/
+images/
+videos/
+
+# lixo do sistema
+__pycache__/
+.DS_Store
+Thumbs.db

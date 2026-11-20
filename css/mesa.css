@@ -1,0 +1,340 @@
+/* ==========================================================================
+   A MESA — o primeiro ecrã (js/mesa.js). Classes com o prefixo mesa-.
+   Fica por cima do céu (#ceu, z-index 0) e por baixo do livro de páginas
+   (#livro-stage, z-index 3).
+   ========================================================================== */
+.mesa {
+  position: fixed; inset: 0; z-index: 2;
+  overflow: hidden;
+  font-family: "Ibarra Real Nova", "Iowan Old Style", Palatino, Georgia, serif;
+  color: #fbf7ee;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.7s ease, visibility 0s linear 0s;
+}
+.mesa.is-escondida { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.7s ease, visibility 0s linear 0.7s; }
+.mesa-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.mesa-camara { position: absolute; inset: 0; transform-origin: 0 0; }
+.mesa-palco { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.mesa-palco > * { position: absolute; margin: 0; }
+.mesa-fundo { left: 0; top: 0; overflow: visible; pointer-events: none; }
+.mesa-obj { pointer-events: none; }
+.mesa-obj > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* ------------------------------------------------------------------ o PC */
+.mesa-pc { pointer-events: auto; cursor: pointer; z-index: 2; }
+.mesa-pc > svg { pointer-events: none; }
+.mesa-teclado, .mesa-rato { z-index: 3; }
+.mesa-led { animation: mesa-led 3.4s ease-in-out infinite; }
+.mesa-led--halo { animation-name: mesa-led-halo; }
+@keyframes mesa-led { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes mesa-led-halo { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.35; } }
+
+/* o vidro do CRT, apagado: reflete o céu */
+.mesa-pc__ecra {
+  position: absolute;
+  left: calc(80 / 300 * 100%); top: calc(84 / 360 * 100%);
+  width: calc(156 / 300 * 100%); height: calc(120 / 360 * 100%);
+  border-radius: 11% / 14%;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 70% at 22% 12%, rgba(160, 150, 214, 0.42), transparent 62%),
+    radial-gradient(40% 30% at 78% 22%, rgba(255, 214, 196, 0.32), transparent 70%),
+    linear-gradient(180deg, rgba(122, 118, 176, 0.22), transparent 55%),
+    radial-gradient(closest-side, #2b3436 0%, #1b2123 85%, #121618 100%);
+  box-shadow: inset 0 0 calc(var(--pcw) * 0.06) rgba(0, 0, 0, 0.75), inset 0 0 2px rgba(0, 0, 0, 0.9);
+  transition: box-shadow 0.6s ease, filter 0.6s ease;
+}
+/* o brilho curvo do vidro */
+.mesa-pc__ecra::before {
+  content: ""; position: absolute; left: 6%; top: 5%; width: 62%; height: 38%;
+  border-radius: 50% 40% 60% 30% / 60% 50% 40% 40%;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04) 60%, transparent);
+  transform: rotate(-6deg);
+}
+.mesa-pc__ecra::after {
+  content: ""; position: absolute; inset: 0; transition: opacity 1.4s ease;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px);
+}
+.mesa-pc__cursor {
+  position: absolute; left: 9%; bottom: 10%;
+  font: 600 calc(var(--pcw) * 0.06) / 1 "Spline Sans Mono", ui-monospace, monospace;
+  color: #8ff0a8; text-shadow: 0 0 6px rgba(143, 240, 168, 0.8);
+  animation: mesa-cursor 2.4s steps(1) infinite;
+  opacity: 0.55;
+}
+@keyframes mesa-cursor { 0%, 55% { opacity: 0.6; } 56%, 100% { opacity: 0; } }
+.mesa.is-pc-hover .mesa-pc__ecra { box-shadow: inset 0 0 calc(var(--pcw) * 0.06) rgba(0, 0, 0, 0.6), inset 0 0 2px rgba(0, 0, 0, 0.9), 0 0 calc(var(--pcw) * 0.08) rgba(143, 240, 168, 0.18); filter: brightness(1.15); }
+
+/* o sticker: papel, fita cor-de-rosa, letra à mão */
+.mesa-sticker {
+  position: absolute; left: 77%; top: 20%;
+  width: 35%;
+  transform: translate(-50%, -50%) rotate(7deg);
+  padding: 0; border: 0; background: none; color: inherit; font: inherit;
+  cursor: pointer; z-index: 3;
+  filter: drop-shadow(1px 2px 1.5px rgba(40, 28, 40, 0.38));
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.1, 1), filter 0.45s, opacity 0.6s;
+  animation: mesa-sticker 7s ease-in-out 2s infinite;
+  outline: none;
+}
+.mesa-sticker__papel {
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 0.12em;
+  padding: 0.3em 0.35em 0.4em 0.45em;
+  background:
+    radial-gradient(80% 60% at 30% 30%, rgba(255, 255, 255, 0.6), transparent 70%),
+    linear-gradient(170deg, #fffaf0, #f3e9d6);
+  border-radius: 3px 6px 4px 7px / 6px 3px 6px 4px;
+  font-family: "Mrs Saint Delafield", "Segoe Script", cursive;
+  font-size: calc(var(--pcw) * 0.105);
+  line-height: 1.05;
+  color: #2c2d68;
+  white-space: nowrap;
+}
+/* o canto a descolar */
+.mesa-sticker__papel::after {
+  content: ""; position: absolute; right: 0; bottom: 0; width: 0.5em; height: 0.5em;
+  background: linear-gradient(135deg, #e5d8c0 0 50%, transparent 50%);
+  border-radius: 0 0 6px 0;
+  box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.12);
+  transition: width 0.4s, height 0.4s;
+}
+.mesa-sticker__fita {
+  position: absolute; left: 32%; top: -0.22em; width: 38%; height: 0.42em;
+  background: repeating-linear-gradient(90deg, rgba(240, 150, 172, 0.78) 0 4px, rgba(248, 182, 198, 0.78) 4px 8px);
+  transform: rotate(-5deg);
+  clip-path: polygon(3% 0, 97% 6%, 100% 30%, 96% 55%, 100% 80%, 97% 100%, 2% 96%, 0 70%, 4% 45%, 0 20%);
+}
+.mesa-sticker__txt { padding: 0.06em 0.1em 0 0; font-family: "Spline Sans Mono", ui-monospace, monospace; font-weight: 600; font-size: 0.65em; letter-spacing: 0.06em; color: #2a2348; }
+.mesa-sticker__coracao { width: 0.5em; height: 0.46em; flex: none; fill: #e0607f; margin-bottom: 0.15em; transform: rotate(10deg); }
+.mesa-sticker__brilho {
+  position: absolute; font: 400 calc(var(--pcw) * 0.06) / 1 Georgia, serif; color: #fff4c8;
+  text-shadow: 0 0 6px rgba(255, 230, 160, 0.9);
+  opacity: 0; pointer-events: none;
+  animation: mesa-brilho 4.2s ease-in-out infinite;
+}
+.mesa-sticker__brilho--a { left: -6%; top: -18%; }
+.mesa-sticker__brilho--b { right: -4%; bottom: -20%; animation-delay: 2.1s; font-size: calc(var(--pcw) * 0.045); }
+@keyframes mesa-brilho { 0%, 70%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); } 80% { opacity: 1; transform: scale(1) rotate(25deg); } 90% { opacity: 0; transform: scale(0.6) rotate(45deg); } }
+@keyframes mesa-sticker {
+  0%, 84%, 100% { transform: translate(-50%, -50%) rotate(7deg); }
+  87% { transform: translate(-50%, -52%) rotate(3deg); }
+  90% { transform: translate(-50%, -50%) rotate(10deg); }
+  93% { transform: translate(-50%, -51%) rotate(5deg); }
+}
+.mesa.is-pc-hover .mesa-sticker {
+  animation: none;
+  transform: translate(-50%, -54%) rotate(2deg) scale(1.08);
+  filter: drop-shadow(2px 5px 4px rgba(40, 28, 40, 0.35));
+}
+.mesa.is-pc-hover .mesa-sticker__papel::after { width: 0.75em; height: 0.75em; }
+.mesa-sticker:focus-visible .mesa-sticker__papel { outline: 2px solid #d4ae5c; outline-offset: 4px; }
+
+/* ----------------------------------------------------- caneca, jarra */
+.mesa-vapor__f {
+  stroke: rgba(255, 250, 246, 0.62); stroke-width: 2.6;
+  animation: mesa-vapor 4.6s ease-in-out infinite;
+  transform-box: fill-box; transform-origin: 50% 100%;
+}
+.mesa-vapor__f:nth-child(2) { animation-delay: 1.5s; }
+.mesa-vapor__f:nth-child(3) { animation-delay: 3s; }
+@keyframes mesa-vapor {
+  0% { opacity: 0; transform: translateY(8px) scaleY(0.7); }
+  30% { opacity: 0.85; }
+  100% { opacity: 0; transform: translateY(-10px) scaleY(1.1) skewX(-6deg); }
+}
+
+/* ----------------------------------------------------------------- a nota */
+.mesa-nota {
+  z-index: 14; pointer-events: none;
+  padding: 0.6em 0.8em 0.7em;
+  background:
+    radial-gradient(80% 60% at 30% 20%, rgba(255, 255, 255, 0.55), transparent 70%),
+    linear-gradient(175deg, #fbf5e8, #efe4cf);
+  color: #2a2f57;
+  font-style: italic; line-height: 1.35; text-align: center; text-wrap: balance;
+  box-shadow: -3px 5px 8px rgba(42, 35, 72, 0.32), 0 0 0 1px rgba(160, 130, 100, 0.12);
+  border-radius: 2px;
+  transform-origin: 50% 0;
+  transition: opacity 0.5s;
+}
+.mesa-nota__p { display: block; }
+.mesa-nota__p + .mesa-nota__p { margin-top: 0.7em; }
+.mesa-nota.ph { border: 1.5px dashed rgba(42, 47, 87, 0.45); }
+.mesa.is-agarrar .mesa-nota { opacity: 0.85; }
+
+/* ---------------------------------------------------- o véu (foco no livro) */
+.mesa-veu {
+  left: -3000px; top: -3000px; width: 7000px; height: 7000px;
+  background: rgba(22, 18, 48, 0.42);
+  opacity: 0; pointer-events: none; z-index: 15;
+  transition: opacity 1.2s ease;
+}
+.mesa.is-agarrar .mesa-veu { opacity: 1; }
+
+/* ---------------------------------------------------------------- o livro */
+.mesa-livro {
+  --bh: calc(var(--bw) * 440 / 300);
+  --t: calc(var(--bw) * 0.11);
+  --azul: #22427f;
+  width: var(--bw); height: var(--bh);
+  margin: calc(var(--bh) / -2) 0 0 calc(var(--bw) / -2) !important;
+  padding: 0; border: 0; background: none; color: inherit; font: inherit;
+  perspective: 1100px;
+  z-index: 20;
+  pointer-events: none;
+  outline: none;
+  transform-origin: 50% 50%;
+}
+.mesa-livro__pose { position: absolute; inset: 0; display: block; transform-style: preserve-3d; transform: rotateX(61deg) rotateZ(var(--rz)); }
+.mesa[data-modo="m"] .mesa-livro__pose { transform: rotateX(54deg) rotateZ(var(--rz)); }
+.mesa-livro__sombra {
+  position: absolute; inset: 3% 1% 0 4%; display: block;
+  border-radius: 6px;
+  background: rgba(36, 28, 64, 0.5);
+  box-shadow: 0 0 calc(var(--bw) * 0.09) calc(var(--bw) * 0.05) rgba(36, 28, 64, 0.45);
+  transform: translate(calc(var(--bw) * -0.08), calc(var(--bw) * 0.12));
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.1, 1), opacity 0.55s;
+}
+.mesa-livro__corpo {
+  position: absolute; inset: 0; display: block;
+  transform-style: preserve-3d;
+  transform: translateZ(var(--t));
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.1, 1);
+  pointer-events: auto; cursor: pointer;
+}
+.mesa-livro__f { position: absolute; display: block; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.mesa-livro__capa {
+  inset: 0;
+  display: grid; grid-template-rows: 1fr auto auto 1fr auto; justify-items: center;
+  padding: 18% 12% 11%;
+  color: #d4ae5c; text-align: center;
+  border-radius: 3px 8px 8px 3px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0, rgba(255, 255, 255, 0.08) 3.5%, rgba(0, 0, 0, 0.18) 5.5%, transparent 9%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 45%, rgba(0, 0, 0, 0.22)),
+    linear-gradient(20deg, transparent 55%, rgba(255, 196, 170, 0.16) 80%, rgba(255, 214, 190, 0.28)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 3px),
+    var(--azul);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 0 calc(var(--bw) * 0.13) rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  transition: box-shadow 0.55s;
+}
+.mesa-livro__moldura { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #d4ae5c; stroke-width: 1.3; opacity: 0.88; }
+.mesa-livro__moldura rect:nth-child(2) { stroke-width: 0.6; }
+.mesa-livro__para, .mesa-livro__sub, .mesa-livro__ano { position: relative; display: block; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45), 0 -1px 0 rgba(255, 230, 170, 0.25); }
+.mesa-livro__para { grid-row: 2; font-style: italic; font-size: calc(var(--bw) * 0.115); line-height: 1.05; text-wrap: balance; }
+.mesa-livro__sub { grid-row: 3; margin-top: 0.9em; font-size: calc(var(--bw) * 0.05); letter-spacing: 0.04em; font-variant: small-caps; }
+.mesa-livro__ano { grid-row: 5; font-size: calc(var(--bw) * 0.04); letter-spacing: 0.2em; opacity: 0.8; }
+.mesa-livro__brilho {
+  position: absolute; inset: -20% -60%; display: block;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 236, 200, 0.32) 50%, transparent 60%);
+  transform: translateX(-60%);
+  pointer-events: none;
+}
+/* as folhas (de lado e de frente), a lombada, a contracapa */
+.mesa-livro__baixo {
+  left: 1.2%; width: 97.6%; top: 100%; height: var(--t);
+  transform-origin: 50% 0; transform: rotateX(-90deg);
+  background:
+    linear-gradient(180deg, var(--azul) 0 9%, transparent 9% 91%, var(--azul) 91%),
+    repeating-linear-gradient(180deg, #f3ead6 0 1px, #ddd0b5 1px 2px),
+    #efe4cc;
+}
+.mesa-livro__cima {
+  left: 1.2%; width: 97.6%; bottom: 100%; height: var(--t);
+  transform-origin: 50% 100%; transform: rotateX(90deg);
+  background: linear-gradient(180deg, var(--azul) 0 9%, #e6dac0 9% 91%, var(--azul) 91%);
+}
+.mesa-livro__dir {
+  top: 1.2%; height: 97.6%; left: 100%; width: var(--t);
+  transform-origin: 0 50%; transform: rotateY(90deg);
+  background:
+    linear-gradient(90deg, var(--azul) 0 9%, transparent 9% 91%, var(--azul) 91%),
+    repeating-linear-gradient(90deg, #f3ead6 0 1px, #d9ccb0 1px 2px),
+    #efe4cc;
+}
+.mesa-livro__lombada {
+  top: 0; height: 100%; right: 100%; width: var(--t);
+  transform-origin: 100% 50%; transform: rotateY(-90deg);
+  background:
+    linear-gradient(180deg, transparent 12%, #d4ae5c 12% 13%, transparent 13% 87%, #d4ae5c 87% 88%, transparent 88%),
+    linear-gradient(90deg, #142c5c, #2a4d8e 50%, #142c5c);
+  border-radius: 4px 0 0 4px;
+}
+.mesa-livro__tras {
+  inset: 0; transform: translateZ(calc(var(--t) * -1)) rotateY(180deg);
+  background: #1a346a; border-radius: 8px 3px 3px 8px;
+}
+.mesa-livro__fita {
+  position: absolute; display: block;
+  left: 68%; top: 97%; width: 4.2%; height: 16%;
+  background: linear-gradient(90deg, #8e2440, #c23b5a 50%, #8e2440);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
+  transform-origin: 50% 0;
+  transform: translateZ(calc(var(--t) * -1 + 1px));
+}
+/* hover / foco: levanta-se um pouco e brilha */
+.mesa.is-livro-hover .mesa-livro__corpo { transform: translateZ(calc(var(--t) + var(--bw) * 0.1)) rotateX(-7deg); }
+.mesa.is-livro-hover .mesa-livro__sombra { transform: translate(calc(var(--bw) * -0.14), calc(var(--bw) * 0.2)) scale(1.04); opacity: 0.7; }
+.mesa.is-livro-hover .mesa-livro__capa { box-shadow: inset 0 0 0 1px rgba(255, 220, 160, 0.25), inset 0 0 calc(var(--bw) * 0.13) rgba(0, 0, 0, 0.3), 0 0 calc(var(--bw) * 0.14) rgba(255, 206, 150, 0.55); }
+.mesa.is-livro-hover .mesa-livro__brilho { transform: translateX(60%); transition: transform 1.1s ease; }
+.mesa-livro:focus-visible .mesa-livro__capa { outline: 2px solid #d4ae5c; outline-offset: 5px; }
+/* a ser agarrado */
+.mesa.is-agarrar .mesa-livro__corpo { transition-duration: 0.9s; transform: translateZ(var(--t)); }
+.mesa.is-agarrar .mesa-livro__sombra { opacity: 0; transition-duration: 0.6s; }
+.mesa.is-agarrar .mesa-livro__capa { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 0 calc(var(--bw) * 0.13) rgba(0, 0, 0, 0.35), 0 calc(var(--bw) * 0.1) calc(var(--bw) * 0.2) rgba(10, 8, 30, 0.45); }
+
+/* a dica por cima do livro */
+.mesa-dica {
+  z-index: 21; pointer-events: none; white-space: nowrap;
+  transform: translate(-50%, -50%) translateY(6px);
+  font-style: italic; letter-spacing: 0.02em;
+  color: #fff8ee;
+  text-shadow: 0 1px 2px rgba(30, 24, 60, 0.7), 0 0 12px rgba(30, 24, 60, 0.5);
+  opacity: 0;
+  transition: opacity 0.5s, transform 0.5s cubic-bezier(0.2, 0.7, 0.1, 1);
+}
+.mesa-dica::after { content: " ↓"; font-style: normal; opacity: 0.85; }
+.mesa.is-livro-hover .mesa-dica { opacity: 1; transform: translate(-50%, -50%); }
+.mesa.is-agarrar .mesa-dica, .mesa.is-zoom .mesa-dica { opacity: 0 !important; }
+@media (hover: none) { .mesa:not(.is-agarrar):not(.is-zoom) .mesa-dica { opacity: 0.85; transform: translate(-50%, -50%); } }
+
+/* ----------------------------------------------------------- a borboleta */
+.mesa-borboleta { left: 0; top: 0; width: 26px; height: 21px; margin: -10px 0 0 -13px; z-index: 18; pointer-events: none; opacity: 0; }
+.mesa-borboleta.is-voar { opacity: 1; }
+.mesa-borboleta svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.mesa-asa { transform-box: fill-box; animation: mesa-asa 0.16s ease-in-out infinite alternate; }
+.mesa-asa--e { transform-origin: 100% 50%; }
+.mesa-asa--d { transform-origin: 0% 50%; }
+.mesa-borboleta.is-pousada .mesa-asa { animation-duration: 1.4s; }
+@keyframes mesa-asa { from { transform: scaleX(1); } to { transform: scaleX(0.18); } }
+
+/* ------------------------------------------------------- a câmara no PC */
+.mesa.is-zoom .mesa-pc__cursor, .mesa.is-zoom .mesa-sticker__brilho { animation: none; opacity: 0; }
+.mesa.is-zoom .mesa-sticker { animation: none; opacity: 0; transition: opacity 0.5s ease 1.3s; }
+.mesa.is-zoom .mesa-pc__ecra::after { opacity: 0; }
+.mesa.is-zoom .mesa-borboleta { visibility: hidden; }
+
+/* ------------------------------------------------- movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  .mesa-led, .mesa-led--halo, .mesa-pc__cursor, .mesa-sticker, .mesa-sticker__brilho, .mesa-vapor__f, .mesa-asa { animation: none !important; }
+  .mesa-vapor__f { opacity: 0.45; }
+  .mesa-pc__cursor { opacity: 0.55; }
+  .mesa-borboleta { display: none; }
+  .mesa-livro__corpo, .mesa-livro__sombra, .mesa-sticker, .mesa-dica, .mesa-veu { transition-duration: 0.2s !important; }
+  .mesa.is-livro-hover .mesa-livro__brilho { transition: none; }
+}
+.mesa-nota.ph::before { content: "✏️ "; font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; }
+
+/* ---------- a entrada: acordar nas flores ---------- */
+.mesa-frente { position: absolute; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.mesa-frente svg { display: block; }
+.mesa-frente__ervas { transform-box: fill-box; transform-origin: 50% 100%; animation: mesa-ervas 5s ease-in-out infinite; }
+@keyframes mesa-ervas { 0%, 100% { transform: rotate(-0.8deg) skewX(-1deg); } 50% { transform: rotate(0.9deg) skewX(1.2deg); } }
+.mesa-acordar-veu { position: absolute; inset: 0; z-index: 41; pointer-events: none; background: radial-gradient(120% 90% at 50% 40%, #1b1633, #0b0818); }
+.mesa-acordar-txt { position: absolute; left: 0; right: 0; top: 18%; z-index: 42; margin: 0; padding: 0 1.2em; text-align: center; pointer-events: none; color: #fdeee2; font-family: "Ibarra Real Nova", Georgia, serif; font-style: italic; font-size: clamp(1.2rem, 3.2vw, 2rem); text-shadow: 0 2px 18px rgba(20, 10, 40, .6); }
+.mesa.is-acordar .mesa-dica { opacity: 0 !important; }
+
+/* o autocolante já diz «I <3 U»: o coração desenhado era repetido */
+.mesa-sticker__coracao { display: none; }

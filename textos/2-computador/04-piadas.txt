@@ -1,0 +1,103 @@
+[matemática] A identidade de Euler junta os cinco números mais importantes da matemática numa só linha, e = 2,718…, i, π, 1 e 0, e dá certinho. Coisas tão diferentes a fazerem uma igualdade perfeita: lembra-te alguém?
+
+[matemática] Sozinho, eu era i: imaginário. Mas i × i = −1, um número real. Precisava de outro imaginário para me tornar real. Encontrei-te.
+
+[matemática] Sou como 1/x: quanto mais longe estou de ti, mais tendo para zero.
+
+[matemática] Se integrasse a felicidade de cada dia desde 20/11/2022 até hoje, a área debaixo da curva não cabia neste ecrã. E a função continua positiva.
+
+[matemática] Tu és como um número primo: indivisível. Euclides provou que há infinitos primos; mas tu, só há uma.
+
+[matemática] Somos primos gémeos: diferentes por dois, sempre lado a lado. Ainda ninguém provou que os primos gémeos acabam, e eu também não acredito que nós acabemos.
+
+[matemática] O que sinto por ti é como π: irracional, infinito e nunca se repete.
+
+[matemática] lim (t → ∞) do que sinto por ti = ∞. E não, não é uma indeterminação.
+
+[matemática] Não quero ser a tua assíntota, sempre a aproximar-me sem nunca te tocar. Prefiro ser a tangente: tocar-te num ponto e seguir contigo na mesma direção.
+
+[matemática] O meu amor por ti é estritamente crescente desde 20/11/2022. Derivada sempre positiva, sem pontos críticos.
+
+[matemática] Cantor provou que há infinitos maiores do que outros. O meu por ti é não-numerável.
+
+[matemática] Fourier mostrou que qualquer sinal é uma soma de ondas simples. Decompus o meu dia inteiro e a frequência dominante eras tu.
+
+[matemática] Na geometria de Euclides, duas paralelas nunca se encontram. Ainda bem que o mundo é redondo: na esfera, todas as retas acabam por se cruzar.
+
+[matemática] Os girassóis arrumam as sementes pelo ângulo de ouro, 137,5°, para caber tudo da forma mais bonita. Eu arrumei a vida à tua volta pela mesma razão.
+
+[computação] Fizemos git merge há quatro anos. Houve conflitos, claro, mas resolvemo-los sempre à mão, com calma, linha a linha. Nunca fizemos rebase da nossa história.
+
+[computação] git commit -m "para sempre". Sem --amend: não há nada a corrigir.
+
+[computação] Para te explicar o quanto te amo, primeiro tenho de te explicar o quanto te amo. Recursão sem caso base: devia dar stack overflow, mas o coração aguenta.
+
+[computação] Erro 404: a minha vida antes de ti. Página não encontrada, e não faz falta nenhuma.
+
+[computação] Encontrar-te numa sala cheia é O(1). Não preciso de percorrer ninguém: os olhos vão direitos a ti, como numa tabela de dispersão bem feita.
+
+[computação] while (true) { amar(catarina); } O linter avisa que é um ciclo infinito. Eu sei. É essa a ideia.
+
+[computação] Antes de ti, o meu coração apontava para null. Agora já não há NullPointerException: aponta sempre para ti.
+
+[computação] Estás na minha cache L1: o acesso mais rápido que tenho. Nunca és despejada, nem quando a memória enche.
+
+[computação] Mesmo quando estás longe, fico em await por ti. E a promessa resolve-se sempre: nunca deste reject.
+
+[computação] Há dias em que me apetecia carregar em Ctrl+Z. Nenhum deles é contigo.
+
+[computação] Tu compilas à primeira. Eu tenho 37 avisos, e tu ignora-los todos com carinho.
+
+[computação] Programo em inglês, sonho em português e penso em ti em todas as linguagens, incluindo as que ainda não foram inventadas.
+
+[cibersegurança] O nosso TCP handshake: SYN (um olhar), SYN-ACK (outro olhar de volta), ACK (o primeiro encontro). Ligação estabelecida há 1461 dias, sem timeout.
+
+[cibersegurança] A minha firewall bloqueia tudo por defeito. Tem uma única exceção, a regra mais antiga e mais importante: ALLOW, origem Catarina, todas as portas.
+
+[cibersegurança] O meu coração tem autenticação multifator: algo que sabes (todas as minhas manias), algo que tens (a chave de casa) e algo que és (tu). Mais seguro do que qualquer banco.
+
+[cibersegurança] Recebi um e-mail a dizer que tinha ganho um prémio. Apaguei: phishing. O prémio verdadeiro deram-mo em 2022, e não me pediu a password.
+
+[cibersegurança] Foste um zero-day: entraste por uma vulnerabilidade que eu nem sabia que tinha. Não quero patch nenhum.
+
+[cibersegurança] Qualquer pessoa pode cifrar mensagens com a minha chave pública. Mas só a chave privada as decifra, e essa está contigo. Por isso só tu me lês por dentro.
+
+[cibersegurança] O que sinto por ti é como um bom hash: muda uma vírgula na entrada e o resultado sai completamente diferente. Por isso não mudes nada. E também não dá para reverter.
+
+[cibersegurança] Escreveste '; DROP TABLE saudades; -- no meu coração e funcionou. Já não tenho tabela de saudades. Contigo, recuso-me a usar queries parametrizadas.
+
+[cibersegurança] «Selecione todas as imagens com a pessoa da sua vida.» Cliquei em todas as fotografias tuas e o sistema confirmou: não sou um robô. Um robô não tremia assim.
+
+[cibersegurança] Raptaste-me o coração como um ransomware, mas ao contrário: não pediste resgate, e eu não quero a chave para o recuperar.
+
+[cibersegurança] Regra 3-2-1 de cópias de segurança: três cópias, dois suportes, uma fora de casa. Fiz isso com as nossas fotografias. Contigo é impossível: há uma só, e é insubstituível.
+
+[cibersegurança] Fiz um teste de intrusão ao meu próprio coração. Relatório final: um acesso não autorizado em 2022, privilégios de administradora, persistência total. Gravidade: crítica. Recomendação: deixar ficar.
+
+[ciência de dados] Contigo fiz overfitting de propósito: decorei-te tão bem que já não generalizo para mais ninguém.
+
+[ciência de dados] Passei anos em gradient descent pela vida, aos tropeções em mínimos locais. Até chegar a ti: mínimo global. Daqui já não saio.
+
+[ciência de dados] Dizem que attention is all you need. Fiz as contas: os meus pesos de atenção somam 1, e estão todos em ti.
+
+[ciência de dados] Num espaço de embeddings, a similaridade de cosseno entre nós dava 1. Mesma direção, sempre.
+
+[ciência de dados] Sou bayesiano: comecei com um prior forte por ti e cada dia só o reforçou. O meu posterior já é certeza.
+
+[ciência de dados] H₀: o que sinto por ti é obra do acaso. p < 0,0001. Rejeito-a com todo o gosto.
+
+[ciência de dados] Perguntei a uma random forest inteira com quem devia passar a vida. Mil árvores, mil votos: tu.
+
+[ciência de dados] És o meu outlier preferido: fora de qualquer distribuição, e nunca te tirava dos dados.
+
+[ciência de dados] Pela lei dos grandes números, quanto mais dias passo contigo, mais a média converge para «perfeito».
+
+[ciência de dados] Early stopping? Contigo, nunca. Quero treinar para sempre.
+
+[ciência de dados] Correlação não implica causalidade, eu sei. Por isso fiz a experiência controlada: sempre que sais da sala, a minha felicidade desce. Causalidade confirmada.
+
+[ciência de dados] Se fizesse uma PCA à minha vida, a primeira componente principal explicava 99 % da variância. Chama-se Catarina.
+
+[ciência de dados] Não preciso de validação cruzada: testei-te em 1461 dias diferentes e o desempenho nunca baixou.
+
+[ciência de dados] O meu intervalo de confiança para te amar amanhã é [100 %, 100 %]. Largura zero. Nunca tive tão pouca incerteza.

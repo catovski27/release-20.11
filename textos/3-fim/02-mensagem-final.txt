@@ -1,0 +1,19 @@
+Amor é fogo que arde sem se ver || while True: amar(catarina)
+
+Tu és o meu princípio e o meu fim || assert inicio == fim == "Catarina"
+
+Duas metades diferentes fazem um inteiro || 0.5 + 0.5 == 1  # e sobra infinito
+
+Contigo, cada dia soma ao anterior || dias_juntos += 1  # nunca -= 1
+
+O que sinto por ti não tem limite || lim(t → ∞) amor(t) = ∞
+
+Tu lês pessoas, eu leio dados, e juntos lemos o mundo || mundo = tu.sentir() + eu.calcular()
+
+Mesmo longe, encontro sempre o caminho até ti || return casa if contigo else procurar(ti)
+
+Se tudo falhar, ficas tu || try: viver() except Exception: abraçar(catarina)
+
+Prometo-te o resto da minha vida || for dia in range(hoje, infinito): escolher(ti)
+
+E tudo o que escrevi cabe numa palavra || print("Amo-te")

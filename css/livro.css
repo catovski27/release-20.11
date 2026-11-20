@@ -1,0 +1,674 @@
+/* ==========================================================================
+   O LIVRO (js/livro.js): papel, lombada, folhas empilhadas, tipografia de
+   livro de poesia. Tudo dentro de .livro; precisa de css/style.css antes
+   (tokens --tinta, --papel, --grain, --fibers, --livro, --mao).
+   ========================================================================== */
+.livro {
+  --l-tinta: var(--tinta, #1f2747);
+  --l-tinta-2: #535a80;
+  --l-rosa: var(--rosa, #c8506b);
+  --l-azul: var(--azulejo, #2a4f9e);
+  --l-ouro: var(--ouro, #d4ae5c);
+  --l-papel: #f4eedf;
+  --l-serif: var(--livro, "Ibarra Real Nova", Georgia, serif);
+  --l-mao: var(--mao, "Mrs Saint Delafield", cursive);
+  --l-mono: var(--maquina, ui-monospace, Consolas, monospace);
+  --lv-esq: 1px; --lv-dir: 8px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--l-serif);
+  color: var(--l-tinta);
+  -webkit-tap-highlight-color: transparent;
+}
+.livro *, .livro *::before, .livro *::after { box-sizing: border-box; }
+
+/* palco: o livro ao centro, os controlos por baixo */
+.lv-palco {
+  position: absolute; inset: 0 0 60px 0;
+  display: grid; place-items: center;
+}
+.livro.is-retrato .lv-palco { bottom: 58px; }
+.lv-livro { position: relative; }
+
+/* a capa de tecido por trás das folhas (dura, azul, com lombada) */
+.lv-capa {
+  position: absolute;
+  inset: calc(var(--lv-m) * -1) calc(var(--lv-m) * -1 - 6px);
+  border-radius: 5px 5px 5px 5px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 90% at 30% 20%, #2f4f93, #1d3264 60%, #15244a);
+  box-shadow:
+    0 2px 2px rgba(10, 14, 30, 0.35),
+    0 30px 60px -18px rgba(12, 16, 38, 0.6),
+    0 60px 120px -40px rgba(12, 16, 38, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 0 18px rgba(0, 0, 0, 0.35);
+}
+.lv-lombada {
+  position: absolute; top: -2px; bottom: -2px; left: 50%; width: calc(var(--lv-m) * 1.6); transform: translateX(-50%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.35), rgba(255, 255, 255, 0.07) 45%, rgba(0, 0, 0, 0.35));
+  border-radius: 3px;
+}
+.livro.is-retrato .lv-capa { inset: calc(var(--lv-m) * -1) calc(var(--lv-m) * -1 - 4px) calc(var(--lv-m) * -1) -4px; border-radius: 3px 5px 5px 3px; }
+.livro.is-retrato .lv-lombada { left: 0; transform: none; width: 7px; }
+
+/* o miolo: as folhas empilhadas que se veem dos lados e em baixo */
+.lv-miolo { position: absolute; inset: 0; pointer-events: none; }
+.lv-miolo::before, .lv-miolo::after {
+  content: ""; position: absolute; top: 3px; bottom: -3px;
+  background:
+    repeating-linear-gradient(90deg, #efe7d4 0 1px, #d3c6a8 1px 2px);
+  box-shadow: 0 1px 2px rgba(40, 30, 10, 0.3);
+  transition: width 0.6s ease, left 0.6s ease, right 0.6s ease;
+}
+.lv-miolo::before { right: 100%; width: var(--lv-esq); border-radius: 3px 0 0 3px; }
+.lv-miolo::after { left: 100%; width: var(--lv-dir); border-radius: 0 3px 3px 0; }
+.lv-miolo { box-shadow: 0 1px 0 #e7dec9, 0 2px 0 #cdbf9f, 0 3px 0 #e9e0cb, 0 4px 0 #c7b996, 0 5px 3px rgba(30, 20, 5, 0.3); background: #efe7d4; }
+.lv-host { position: relative; }
+.lv-flip { position: relative; }
+
+/* ---------------------------------------------------------------- a folha */
+.livro .lv-p {
+  font-size: var(--lv-fs);
+  line-height: 1.5;
+  overflow: hidden;
+  background-color: var(--l-papel);
+  background-image:
+    var(--grain, none),
+    var(--fibers, none),
+    radial-gradient(140% 100% at 50% 40%, #f8f3e7 0%, #f2ebda 70%, #e8dec6 100%);
+  color: var(--l-tinta);
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  hyphens: auto; -webkit-hyphens: auto;
+}
+.lv-medir .lv-p { width: 100%; height: 100%; }
+.lv-in { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 2.5em 2.65em 1.6em; }
+/* a sombra da lombada e o escurecer da margem exterior */
+.livro .lv-p::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+}
+.livro .lv-p--esq::after {
+  background:
+    linear-gradient(270deg, rgba(70, 48, 20, 0.34) 0, rgba(70, 48, 20, 0.12) 2.2%, rgba(70, 48, 20, 0.04) 7%, transparent 14%),
+    linear-gradient(90deg, rgba(90, 70, 30, 0.1), transparent 3%);
+}
+.livro .lv-p--dir::after {
+  background:
+    linear-gradient(90deg, rgba(70, 48, 20, 0.34) 0, rgba(70, 48, 20, 0.12) 2.2%, rgba(70, 48, 20, 0.04) 7%, transparent 14%),
+    linear-gradient(270deg, rgba(90, 70, 30, 0.1), transparent 3%);
+}
+.livro .lv-p--esq .lv-in { padding-right: 2.9em; padding-left: 2.4em; }
+.livro .lv-p--dir .lv-in { padding-left: 2.9em; padding-right: 2.4em; }
+
+.lv-cabeca {
+  flex: none; height: 1.2em; margin-bottom: 1.1em;
+  font-size: 0.66em; letter-spacing: 0.22em; text-transform: uppercase; font-variant: small-caps;
+  color: var(--l-tinta-2); opacity: 0.75; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lv-corpo { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.lv-folio {
+  flex: none; height: 1.4em; margin-top: 0.7em;
+  font-style: italic; font-size: 0.9em; color: var(--l-tinta-2);
+  text-align: center; font-variant-numeric: oldstyle-nums;
+}
+.lv-p--esq .lv-folio { text-align: left; }
+.lv-p--dir .lv-folio { text-align: right; }
+.lv-p--esq .lv-folio:not(:empty)::after, .lv-p--dir .lv-folio:not(:empty)::before { content: "❧"; font-style: normal; margin: 0 0.5em; color: var(--l-ouro); font-size: 0.9em; }
+.lv-p--esq .lv-folio:not(:empty)::after { content: "☙"; }
+
+/* espaço reservado (algo que o Diogo ainda vai escrever) */
+.livro .ph {
+  display: inline-block;
+  font-family: var(--l-mono) !important; font-style: normal !important; font-weight: 400 !important;
+  font-size: 0.68rem !important; line-height: 1.5 !important; letter-spacing: 0 !important;
+  color: #8a6a3a !important; text-transform: none !important; text-align: left !important;
+  border: 1px dashed rgba(138, 106, 58, 0.6); border-radius: 4px; padding: 0.35em 0.6em;
+  background: rgba(255, 248, 225, 0.55); text-indent: 0 !important;
+}
+.livro .ph::before { content: "✏️ "; }
+.livro p.ph { display: block; margin: 0.6em 0; }
+.livro .lv-capitular.ph::first-letter { all: unset; }
+
+/* ---------------------------------------------------------------- ornamentos */
+.lv-orn { margin: 0.9em 0 0; text-align: center; color: var(--l-rosa); font-size: 1.4em; line-height: 1; opacity: 0.85; }
+.lv-orn--peq { font-size: 1em; margin: 0.5em 0; color: var(--l-ouro); }
+.lv-filete { display: block; width: 9em; height: 0.6em; margin: 1.1em auto; fill: none; stroke: var(--l-ouro); stroke-width: 1; overflow: visible; }
+.lv-filete path:nth-child(3) { fill: var(--l-ouro); stroke: none; }
+.lv-filete circle { fill: var(--l-ouro); stroke: none; }
+
+/* ---------------------------------------------------------------- tipografia comum */
+.lv-titulo { margin: 0 0 0.9em; font-weight: 500; font-style: italic; font-size: 1.62em; line-height: 1.15; text-align: center; color: var(--l-tinta); letter-spacing: 0.005em; }
+.lv-titulo::after { content: ""; display: block; width: 2.2em; height: 1px; margin: 0.45em auto 0; background: var(--l-ouro); }
+.lv-par { margin: 0; text-align: justify; text-indent: 1.4em; font-size: 1em; }
+.lv-par + .lv-par { margin-top: 0.15em; }
+.lv-par.lv-cont { text-indent: 0; }
+.lv-par.lv-partido { text-align-last: justify; }
+.lv-par--centro { text-align: center; text-indent: 0; margin: 0.6em 0 0.2em; font-style: italic; }
+.lv-capitular { text-indent: 0; }
+.lv-capitular::first-letter {
+  float: left; font-size: 3.55em; line-height: 0.82; margin: 0.06em 0.09em 0 0; padding: 0;
+  font-weight: 500; color: var(--l-rosa);
+}
+.lv-assin { margin: 0.9em 0 0; text-align: right; font-family: var(--l-mao); font-size: 2.3em; line-height: 1.1; color: var(--l-azul); transform: rotate(-3deg); transform-origin: right center; }
+
+/* ---------------------------------------------------------------- rosto */
+.lv-p--rosto .lv-corpo { justify-content: center; text-align: center; }
+.lv-rosto__datas { margin: 0 0 2.2em; font-size: 0.78em; letter-spacing: 0.32em; text-transform: uppercase; color: var(--l-tinta-2); }
+.lv-rosto__tit { margin: 0; font-weight: 500; font-style: italic; font-size: 2.7em; line-height: 1.04; letter-spacing: -0.005em; color: var(--l-tinta); }
+.lv-rosto__sub { margin: 0.7em 0 0; font-size: 1.05em; font-variant: small-caps; letter-spacing: 0.12em; color: var(--l-rosa); }
+.lv-rosto__epi { margin: 1.4em auto 0; max-width: 17em; font-style: italic; font-size: 0.95em; line-height: 1.55; color: var(--l-tinta-2); }
+.lv-rosto__epi p { margin: 0; white-space: pre-line; }
+.lv-rosto__epi footer { margin-top: 0.6em; font-style: normal; font-size: 0.78em; letter-spacing: 0.2em; text-transform: uppercase; }
+
+/* ---------------------------------------------------------------- índice */
+.lv-p--indice .lv-corpo { justify-content: flex-start; padding-top: 1.2em; }
+.lv-indice__tit { margin: 0; text-align: center; font-weight: 500; font-style: italic; font-size: 1.9em; }
+.lv-indice__lista { list-style: none; margin: 1.1em 0 0; padding: 0; }
+.lv-indice__item {
+  display: flex; align-items: baseline; gap: 0.55em; width: 100%;
+  padding: 0.42em 0.2em; margin: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; color: inherit; text-align: left; border-radius: 3px;
+  transition: color 0.25s, background-color 0.25s;
+}
+.lv-indice__item > * { pointer-events: none; }
+.lv-indice__item:hover, .lv-indice__item:focus-visible { color: var(--l-rosa); background: rgba(200, 80, 107, 0.06); outline: none; }
+.lv-indice__item:focus-visible { box-shadow: 0 0 0 1.5px var(--l-rosa); }
+.lv-indice__num { flex: none; min-width: 2.4em; font-size: 0.82em; letter-spacing: 0.08em; color: var(--l-ouro); font-weight: 600; }
+.lv-indice__nome { flex: none; max-width: 70%; font-style: italic; font-size: 1.08em; }
+.lv-indice__pont { flex: 1 1 auto; border-bottom: 1.5px dotted rgba(31, 39, 71, 0.35); transform: translateY(-0.3em); min-width: 1em; }
+.lv-indice__pag { flex: none; min-width: 1.6em; text-align: right; font-variant-numeric: oldstyle-nums; }
+
+/* ---------------------------------------------------------------- o rabisco */
+.lv-rabisco {
+  position: relative; display: block; margin: 1.8em auto 0; padding: 0.2em 0.6em 0.5em 2.6em;
+  border: 0; background: none; cursor: pointer; color: var(--l-rosa);
+  font-family: var(--l-mao); font-size: 2.15em; line-height: 1.1; white-space: nowrap;
+  transform: rotate(-5deg); transform-origin: 50% 60%;
+  -webkit-tap-highlight-color: transparent;
+}
+.lv-rabisco > * { pointer-events: none; }
+.lv-rabisco__txt { position: relative; display: inline-block; }
+.lv-rabisco__sub { position: absolute; left: 2.2em; right: 0.2em; bottom: 0.05em; width: calc(100% - 2.4em); height: 0.5em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; overflow: visible; }
+.lv-rabisco__seta { position: absolute; left: -0.35em; top: -0.9em; width: 2.6em; height: 2em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; transform: rotate(6deg); }
+.lv-rabisco:hover, .lv-rabisco:focus-visible { animation: lv-abana 0.55s ease-in-out infinite; outline: none; }
+.lv-rabisco:focus-visible .lv-rabisco__txt { text-decoration: underline wavy rgba(200, 80, 107, 0.5); }
+@keyframes lv-abana {
+  0%, 100% { transform: rotate(-5deg) translateX(0); }
+  25% { transform: rotate(-8deg) translateX(-0.04em); }
+  75% { transform: rotate(-2deg) translateX(0.04em); }
+}
+
+/* ---------------------------------------------------------------- secção */
+.lv-p--secao .lv-corpo { justify-content: flex-start; padding-top: 22%; text-align: center; }
+.lv-secao__num { margin: 0; font-size: 4.6em; line-height: 1; font-weight: 400; font-style: italic; color: var(--l-rosa); letter-spacing: 0.04em; }
+.lv-secao__tit { margin: 0; font-weight: 500; font-size: 1.95em; line-height: 1.12; font-style: italic; }
+.lv-secao__frase { margin: 1.2em auto 0; max-width: 16em; font-style: italic; color: var(--l-tinta-2); font-size: 1.02em; line-height: 1.6; }
+
+/* ---------------------------------------------------------------- poema */
+.lv-p--poema .lv-corpo { padding: 0 0 0 7%; }
+.lv-poema__tit { margin: 0.4em 0 0.15em -7%; text-align: center; font-weight: 500; font-style: italic; font-size: 1.45em; line-height: 1.2; }
+.lv-poema__autor { margin: 0 0 0 -7%; text-align: center; font-size: 0.78em; letter-spacing: 0.24em; text-transform: uppercase; color: var(--l-tinta-2); }
+.lv-poema__obra { margin: 0.15em 0 0 -7%; text-align: center; font-size: 0.86em; font-style: italic; color: var(--l-tinta-2); }
+.lv-poema__tit + .lv-estrofe, .lv-poema__autor + .lv-estrofe, .lv-poema__obra + .lv-estrofe { margin-top: 1.5em; }
+.lv-estrofe { margin: 0 0 1em; hyphens: manual; }
+.lv-estrofe.lv-cont { margin-top: 0; }
+.lv-verso { display: block; padding-left: 1.6em; text-indent: -1.6em; line-height: 1.52; font-size: 1.04em; }
+.lv-p--poema .lv-assin { margin-right: 4%; }
+.lv-poema__nota { margin: 1.2em 0 0 -7%; padding-top: 0.6em; border-top: 1px solid rgba(212, 174, 92, 0.6); font-size: 0.78em; font-style: italic; color: var(--l-tinta-2); text-align: center; }
+
+/* ---------------------------------------------------------------- momento e fotografias */
+.lv-momento__data { margin: 0 0 0.25em; text-align: center; font-size: 0.74em; letter-spacing: 0.26em; text-transform: uppercase; color: var(--l-rosa); }
+.lv-p--momento .lv-titulo { margin-bottom: 0.7em; }
+.lv-fotos { display: flex; justify-content: center; align-items: flex-start; gap: 0.7em; margin: 0.6em 0 1.3em; padding: 0.3em 0; }
+.lv-fotos--2 .lv-foto:nth-child(2) { margin-top: 1.1em; }
+.lv-foto { position: relative; margin: 0; padding: 0.42em 0.42em 0.5em; background: #fdfbf5; transform: rotate(var(--rot, -1.5deg));
+  box-shadow: 0 1px 1px rgba(40, 30, 20, 0.22), 0 6px 14px -6px rgba(40, 30, 20, 0.45); }
+.lv-foto__quadro { position: relative; overflow: hidden; background: #d9cdb5 center / cover no-repeat; }
+.lv-foto__quadro img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s; }
+.lv-foto__quadro.is-ok img { opacity: 1; }
+.lv-foto__quadro.is-falta { background: repeating-linear-gradient(45deg, #e9dfca 0 6px, #e2d6bd 6px 12px); }
+.lv-foto__leg { margin: 0.35em 0 0; text-align: center; font-family: var(--l-mao); font-size: 1.55em; line-height: 1; color: var(--l-azul); }
+/* fita-cola de papel (washi) */
+.lv-foto--fita::before, .lv-foto--fita::after {
+  content: ""; position: absolute; width: 3.2em; height: 1.05em; z-index: 2;
+  background: repeating-linear-gradient(90deg, rgba(232, 160, 172, 0.72) 0 6px, rgba(240, 186, 194, 0.72) 6px 12px);
+  box-shadow: 0 1px 1px rgba(60, 30, 30, 0.12);
+  -webkit-mask: linear-gradient(90deg, transparent 0 2px, #000 2px calc(100% - 2px), transparent calc(100% - 2px)), radial-gradient(circle at 50% 50%, #000 1px, transparent 1.2px) 0 0 / 3px 3px;
+}
+.lv-foto--fita::before { top: -0.5em; left: -0.9em; transform: rotate(calc(-38deg + var(--fita, 0deg))); }
+.lv-foto--fita::after { bottom: -0.45em; right: -0.9em; transform: rotate(calc(-34deg - var(--fita, 0deg))); background: repeating-linear-gradient(90deg, rgba(170, 196, 228, 0.75) 0 6px, rgba(196, 214, 238, 0.75) 6px 12px); }
+/* cantos de álbum */
+.lv-foto--cantos::before, .lv-foto--cantos::after, .lv-foto--cantos .lv-foto__quadro::before, .lv-foto--cantos .lv-foto__quadro::after {
+  content: ""; position: absolute; width: 1.3em; height: 1.3em; z-index: 2; background: #2a2622;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+.lv-foto--cantos::before { top: 0.05em; left: 0.05em; clip-path: polygon(0 0, 100% 0, 0 100%); }
+.lv-foto--cantos::after { bottom: 0.05em; right: 0.05em; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+.lv-foto--cantos .lv-foto__quadro { position: relative; overflow: visible; }
+.lv-foto--cantos .lv-foto__quadro::before { top: -0.37em; right: -0.37em; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.lv-foto--cantos .lv-foto__quadro::after { bottom: -0.37em; left: -0.37em; clip-path: polygon(0 0, 0 100%, 100% 100%); }
+.lv-foto--cantos .lv-foto__quadro img { position: relative; }
+
+/* ---------------------------------------------------------------- dança */
+.lv-p--danca .lv-corpo { justify-content: flex-start; }
+.lv-danca { position: relative; flex: 1 1 auto; min-height: 9em; margin: -0.4em -1em 0; }
+.livro .stf__parent .lv-danca canvas, .lv-danca canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+.lv-danca__txt { flex: none; margin: 0.6em 0 0; text-align: center; font-style: italic; color: var(--l-tinta-2); line-height: 1.55; }
+
+/* ---------------------------------------------------------------- filme */
+.lv-p--filme .lv-corpo { justify-content: flex-start; }
+.lv-filme__img {
+  position: relative; flex: none; height: 15em; margin: -0.5em -0.6em 1em; overflow: hidden;
+  background:
+    radial-gradient(80% 70% at 75% 25%, rgba(255, 214, 160, 0.85), transparent 60%),
+    radial-gradient(90% 80% at 15% 90%, rgba(120, 70, 120, 0.7), transparent 65%),
+    linear-gradient(160deg, #3a4a8a, #b46a78 55%, #e8b07a);
+  box-shadow: 0 1px 1px rgba(40, 30, 20, 0.2), 0 8px 16px -8px rgba(40, 30, 20, 0.5);
+  outline: 0.4em solid #fdfbf5;
+}
+.lv-filme__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.6s; }
+.lv-filme__img.is-ok img { opacity: 1; }
+.lv-filme__nomefundo { position: absolute; left: 0.7em; bottom: 0.4em; right: 0.7em; font-style: italic; font-size: 2em; line-height: 1.05; color: rgba(255, 246, 230, 0.92); text-shadow: 0 2px 10px rgba(30, 20, 40, 0.4); }
+.lv-filme__cab { text-align: center; }
+.lv-filme__nome { margin: 0; font-weight: 500; font-style: italic; font-size: 1.55em; line-height: 1.15; }
+.lv-filme__sub { margin: 0.2em 0 0; font-size: 0.78em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--l-tinta-2); }
+.lv-filme__msg { margin: 0.9em 0 0; text-align: center; font-size: 1em; line-height: 1.55; }
+.lv-filme__frase { margin: 0.6em 0 0; text-align: center; font-family: var(--l-mao); font-size: 2em; line-height: 1.1; color: var(--l-rosa); transform: rotate(-2deg); }
+
+/* ---------------------------------------------------------------- botão bonito */
+.lv-botao {
+  align-self: center; display: inline-flex; align-items: center; gap: 0.55em;
+  margin: 1.1em auto 0; padding: 0.62em 1.5em 0.6em;
+  font: inherit; font-size: 0.86em; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 500;
+  color: var(--l-tinta); background: rgba(255, 252, 244, 0.55);
+  border: 1px solid var(--l-tinta); border-radius: 999px; cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(244, 238, 223, 0.9), 0 0 0 4px rgba(212, 174, 92, 0.75), 0 6px 14px -8px rgba(31, 39, 71, 0.6);
+  transition: background-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+.lv-botao::before { content: attr(data-ico); font-size: 1.15em; letter-spacing: 0; color: var(--l-rosa); transition: color 0.3s; }
+.lv-botao:hover, .lv-botao:focus-visible { background: var(--l-tinta); color: #fbf7ee; transform: translateY(-1px); outline: none; }
+.lv-botao:hover::before, .lv-botao:focus-visible::before { color: var(--l-ouro); }
+
+/* ---------------------------------------------------------------- viagem, xadrez */
+.lv-p--viagem .lv-corpo, .lv-p--xadrez .lv-corpo { justify-content: center; }
+.lv-ilustra { display: block; width: 62%; max-height: 13em; margin: 0 auto 0.4em; overflow: visible; fill: none; stroke: var(--l-tinta); stroke-linecap: round; stroke-linejoin: round; }
+.lv-ilustra .i-tinta { stroke-width: 1.6; }
+.lv-ilustra .i-fina { stroke-width: 1; opacity: 0.6; }
+.lv-ilustra .i-front { stroke-width: 0.9; stroke-dasharray: 3 3; opacity: 0.55; }
+.lv-ilustra .i-agua { stroke: var(--l-azul); stroke-width: 0.9; opacity: 0.5; }
+.lv-ilustra .i-rota { stroke: var(--l-rosa); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.lv-ilustra .i-ponto { fill: var(--l-rosa); stroke: none; }
+.lv-ilustra text { fill: var(--l-tinta); stroke: none; font-family: var(--l-mao); font-size: 13px; }
+.lv-ilustra .i-cor { fill: var(--l-rosa); stroke: none; opacity: 0.9; }
+.lv-ilustra .i-rosa path { fill: var(--l-tinta); stroke: none; }
+.lv-ilustra .i-rosa text { font-family: var(--l-serif); font-size: 9px; font-style: italic; }
+.lv-ilustra .i-hach { stroke-width: 0.7; opacity: 0.55; }
+.lv-ilustra .i-peca { fill: #fbf7ee; stroke-width: 1.5; }
+.lv-ilustra .i-peca--escura { fill: var(--l-tinta); }
+
+/* ---------------------------------------------------------------- ementa */
+.lv-p--ementa .lv-corpo { text-align: center; }
+.lv-ementa__sobre { margin: 0.4em 0 0; font-size: 0.72em; letter-spacing: 0.4em; text-transform: uppercase; color: var(--l-rosa); }
+.lv-ementa__tit { margin: 0.1em 0 0; font-weight: 500; font-style: italic; font-size: 1.7em; line-height: 1.15; }
+.lv-ementa__item { margin: 0 0 0.95em; }
+.lv-ementa__nome { margin: 0; font-size: 1.08em; font-style: italic; }
+.lv-ementa__nota { margin: 0.1em 0 0; font-size: 0.82em; color: var(--l-tinta-2); line-height: 1.4; }
+
+/* ---------------------------------------------------------------- fim */
+.lv-p--fim .lv-corpo { justify-content: center; text-align: center; }
+.lv-fim__fim { margin: 0; font-style: italic; font-size: 3.4em; line-height: 1; font-weight: 400; }
+.lv-fim__txt { margin: 1em auto 0; max-width: 17em; font-style: italic; color: var(--l-tinta-2); line-height: 1.6; }
+
+/* ---------------------------------------------------------------- guardas (as folhas do princípio e do fim) */
+.livro .lv-p--guarda .lv-in { padding: 0; align-items: center; justify-content: center; }
+.livro .lv-p--guarda {
+  background-color: #23397a;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(212, 174, 92, 0.22) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 75% 75%, rgba(212, 174, 92, 0.22) 0 1.5px, transparent 2px),
+    repeating-radial-gradient(circle at 0 0, transparent 0 14px, rgba(255, 255, 255, 0.04) 14px 15px),
+    var(--grain, none),
+    linear-gradient(160deg, #2c4791, #1b2d63);
+  background-size: 22px 22px, 22px 22px, 44px 44px, auto, auto;
+}
+.lv-exlibris { position: relative; z-index: 1; padding: 1.4em 2em 1em; text-align: center; background: var(--l-papel) var(--grain, none); border: 1px solid var(--l-ouro); outline: 1px solid var(--l-ouro); outline-offset: -6px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); transform: rotate(-1deg); }
+.lv-exlibris__sob { margin: 0; font-size: 0.72em; letter-spacing: 0.4em; text-transform: uppercase; color: var(--l-tinta-2); }
+.lv-exlibris__nome { margin: 0.1em 0 0; font-family: var(--l-mao); font-size: 2.6em; line-height: 1.15; color: var(--l-azul); }
+
+/* ---------------------------------------------------------------- navegação */
+.lv-nav {
+  position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 0.9rem;
+  padding: 0.3rem 0.45rem; border-radius: 999px;
+  background: rgba(251, 247, 238, 0.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 18px -6px rgba(20, 26, 51, 0.45);
+  font-family: var(--l-serif);
+}
+.lv-nav__b {
+  display: grid; place-items: center; width: 2.3rem; height: 2.3rem; padding: 0;
+  border: 1px solid rgba(31, 39, 71, 0.35); border-radius: 50%; background: transparent; color: var(--l-tinta); cursor: pointer;
+  transition: background-color 0.25s, color 0.25s, opacity 0.25s;
+}
+.lv-nav__b svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.lv-nav__b:hover:not(:disabled), .lv-nav__b:focus-visible { background: var(--l-tinta); color: #fbf7ee; outline: none; }
+.lv-nav__b:disabled { opacity: 0.3; cursor: default; }
+.lv-nav__ind { min-width: 6.5em; text-align: center; font-style: italic; font-size: 0.98rem; color: var(--l-tinta); font-variant-numeric: oldstyle-nums; }
+
+/* a medição: fora do ecrã */
+.lv-medir { position: absolute; left: -10000px; top: 0; visibility: hidden; pointer-events: none; }
+.lv-medir .lv-p { position: relative; }
+
+/* PageFlip: as folhas têm position:absolute; a sombra de dobra mais quente */
+.livro .stf__item { position: absolute; }
+.livro .lv-p--esq, .livro .lv-p--dir { position: absolute; }
+.livro .lv-medir .lv-p { position: relative; }
+
+@media (max-width: 700px) {
+  .lv-nav { bottom: 10px; gap: 0.6rem; }
+  .lv-nav__ind { font-size: 0.92rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lv-rabisco:hover, .lv-rabisco:focus-visible { animation: none; transform: rotate(-7deg); }
+  .lv-miolo::before, .lv-miolo::after { transition: none; }
+  .lv-botao, .lv-foto__quadro img, .lv-filme__img img { transition: none; }
+}
+
+/* ---------- o mapa da viagem: Portugal com a bandeira, clicável ---------- */
+.lv-mapa-btn { display: block; width: 100%; padding: 0; margin: 0 0 0.3em; border: 0; background: none; cursor: pointer; border-radius: 8px; transition: transform 0.35s ease, filter 0.35s ease; }
+.lv-mapa-btn:hover, .lv-mapa-btn:focus-visible { transform: scale(1.03) rotate(-0.6deg); filter: drop-shadow(0 6px 10px rgba(31, 39, 71, 0.25)); outline: none; }
+.lv-ilustra--pt { width: 92%; max-height: 17em; }
+.lv-ilustra--pt .i-verde { fill: #1d7a4a; stroke: none; opacity: 0.82; }
+.lv-ilustra--pt .i-verm { fill: #c93a3a; stroke: none; opacity: 0.82; }
+.lv-ilustra--pt .i-pt { stroke-width: 1.5; }
+.lv-ilustra--pt .i-esfera circle, .lv-ilustra--pt .i-esfera ellipse, .lv-ilustra--pt .i-esfera path { fill: none; stroke: #f2c94c; stroke-width: 1.4; }
+.lv-ilustra--pt .i-esfera .i-escudo { fill: #fbf3e4; stroke: #8a2a2a; stroke-width: 0.8; }
+.lv-ilustra--pt .i-nome { font-size: 11px; font-style: italic; fill: var(--l-tinta-2); letter-spacing: 0.12em; opacity: 0.8; }
+.lv-ilustra--pt .i-nome--esp { opacity: 0.45; }
+.lv-ilustra--pt .i-rota { stroke-width: 1.8; stroke-dasharray: 5 4; animation: lv-rota 2.4s linear infinite; }
+.lv-ilustra--pt .i-ponto { fill: #fff; stroke: var(--l-tinta); stroke-width: 1.3; }
+.lv-ilustra--pt .i-pulsa { fill: none; stroke: var(--l-rosa); stroke-width: 1.6; transform-box: fill-box; transform-origin: center; animation: lv-pulsa 1.8s ease-out infinite; }
+.lv-ilustra--pt .i-mastro > path { stroke-width: 1.6; }
+.lv-ilustra--pt .i-onda { transform-box: fill-box; transform-origin: left center; animation: lv-onda 2.2s ease-in-out infinite; }
+.lv-ilustra--pt .i-onda .i-verde, .lv-ilustra--pt .i-onda .i-verm { stroke: var(--l-tinta); stroke-width: 0.8; }
+.lv-ilustra--pt .i-sol { fill: #f2c94c; stroke: #8a6a1a; stroke-width: 0.8; }
+.lv-ilustra--pt .i-clica { font-size: 17px; fill: var(--l-rosa); text-anchor: middle; }
+.lv-ilustra--pt .i-seta { fill: none; stroke: var(--l-rosa); stroke-width: 1.5; }
+.lv-ilustra--pt .i-convite { animation: lv-convite 2.6s ease-in-out infinite; }
+@keyframes lv-rota { to { stroke-dashoffset: -18; } }
+@keyframes lv-pulsa { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(4.2); opacity: 0; } }
+@keyframes lv-onda { 0%, 100% { transform: skewY(0deg) scaleX(1); } 50% { transform: skewY(4deg) scaleX(0.94); } }
+@keyframes lv-convite { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-3px, 3px); } }
+@media (prefers-reduced-motion: reduce) { .lv-ilustra--pt .i-rota, .lv-ilustra--pt .i-pulsa, .lv-ilustra--pt .i-onda, .lv-ilustra--pt .i-convite, .lv-mapa-btn { animation: none; transition: none; } }
+
+/* ---------- xadrez: o poster da série ---------- */
+.lv-xadrez-row { display: flex; align-items: center; justify-content: center; gap: 0.8em; margin: 0 0 0.4em; }
+.lv-xadrez-row .lv-ilustra { width: 54%; margin: 0; }
+.lv-xadrez-poster { position: relative; flex: none; width: 34%; margin: 0; padding: 0.35em 0.35em 0.2em; background: #fbf7ee; box-shadow: 0 3px 10px rgba(31, 39, 71, 0.28); transform: rotate(3deg); }
+.lv-xadrez-poster img { display: block; width: 100%; height: auto; }
+.lv-xadrez-poster figcaption { margin: 0.25em 0 0; text-align: center; font-family: var(--l-mao); font-size: 1.15em; line-height: 1; color: var(--l-azul); }
+.lv-xadrez-poster__fita { position: absolute; top: -0.55em; left: 50%; width: 3.4em; height: 1.1em; margin-left: -1.7em; background: rgba(212, 174, 92, 0.55); transform: rotate(-4deg); }
+
+/* ---------- a capa que abre ---------- */
+.lv-capa-abre { position: absolute; z-index: 30; left: 50%; top: calc(var(--lv-m) * -1); bottom: calc(var(--lv-m) * -1); right: calc(var(--lv-m) * -1 - 6px); transform-origin: left center; transform-style: preserve-3d; pointer-events: none; will-change: transform; }
+.lv-capa-abre__f { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 2px 5px 5px 2px; }
+.lv-capa-abre__frente {
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 90% at 30% 20%, #2f4f93, #1d3264 60%, #15244a);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), inset 6px 0 14px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(10, 14, 30, 0.4);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #d9b968; padding: 12%;
+}
+.lv-capa-abre__mold { position: absolute; inset: 5%; border: 1.5px solid rgba(217, 185, 104, 0.75); border-radius: 2px; box-shadow: inset 0 0 0 4px transparent, inset 0 0 0 5px rgba(217, 185, 104, 0.4); }
+.lv-capa-abre__para { font-size: 0.8em; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.9; }
+.lv-capa-abre__sub { margin-top: 0.6em; font-size: 1.7em; font-style: italic; line-height: 1.1; }
+.lv-capa-abre__ano { margin-top: 1.2em; font-size: 0.8em; letter-spacing: 0.3em; opacity: 0.85; }
+.lv-capa-abre__verso { transform: rotateY(180deg); background: linear-gradient(90deg, #cdbf9f, #efe7d4 18%, #f4eedf); box-shadow: inset 0 0 0 5px #1d3264, inset 0 0 0 6px rgba(217, 185, 104, 0.5); }
+
+/* a fotografia na página da dança: encostada ao canto, sobre as fitas */
+.lv-danca__foto { flex: none; align-self: center; margin: 0 0 0.2em; }
+
+.lv-carta__foto { margin: 0.8em auto 0; align-self: center; }
+
+/* nas páginas de momentos, uma mudança de linha dentro do parágrafo (versos) mantém-se */
+.lv-p--momento .lv-par { white-space: pre-line; }
+.lv-p--momento .lv-par { text-indent: 0; text-align: left; }
+.lv-p--momento .lv-par + .lv-par { margin-top: 0.7em; }
+.lv-p--momento .lv-par.lv-partido { text-align-last: left; }
+
+/* poemas com versos compridos: letra menor e margens mais curtas, cada verso numa só linha */
+.lv-p--longo .lv-verso { font-size: 0.93em; padding-left: 1.2em; text-indent: -1.2em; letter-spacing: -0.005em; }
+.livro .lv-p--longo.lv-p--esq .lv-in, .livro .lv-p--longo.lv-p--dir .lv-in { padding-left: 1.9em; padding-right: 1.6em; }
+
+/* momento só com uma fotografia grande: centrada na folha */
+.lv-p--momento .lv-fotos--1 { margin-left: auto; margin-right: auto; }
+
+/* poema com muitas linhas: letra e espaços mais pequenos, para caber (com a assinatura) na mesma folha */
+.lv-p--denso .lv-verso { font-size: 0.72em; line-height: 1.34; }
+.lv-p--denso .lv-estrofe { margin-bottom: 0.55em; }
+.lv-p--denso .lv-poema__tit + .lv-estrofe, .lv-p--denso .lv-poema__obra + .lv-estrofe { margin-top: 0.8em; }
+.lv-p--denso .lv-assin { font-size: 1.5em; margin-top: 0.2em; }
+.lv-p--denso .lv-assin { font-size: 1.25em; margin-top: 0; line-height: 1; }
+.lv-p--denso .lv-estrofe { margin-bottom: 0.4em; }
+.lv-p--denso .lv-poema__tit { margin-bottom: 0; }
+
+.lv-poema__foto { margin: 0.9em auto 0; align-self: center; }
+
+.lv-p--momento .lv-foto__quadro img { object-position: 50% 60%; }
+
+/* ---------- página 17: a carta de viagem (js/livro.js, mapaSvg) ---------- */
+.lv-ilustra--pt { width: 100%; height: auto; max-height: 17.5em; margin: 0 auto; overflow: visible; }
+.lv-mapa-btn { filter: drop-shadow(0 6px 10px rgba(31, 39, 71, 0.22)); }
+.lv-mapa-btn:hover, .lv-mapa-btn:focus-visible { transform: translateY(-2px) rotate(-0.4deg) scale(1.015); filter: drop-shadow(0 10px 16px rgba(31, 39, 71, 0.3)); }
+.lv-ilustra--pt .m-papel { fill: #efe5cf; stroke: none; }
+.lv-ilustra--pt .m-azulejo path, .lv-ilustra--pt .m-azulejo circle { fill: none; stroke: #2a4f9e; stroke-width: 0.7; }
+.lv-ilustra--pt .m-esp { fill: #e3d2ad; stroke: none; }
+.lv-ilustra--pt .m-verde { fill: #3d7a52; stroke: none; opacity: 0.86; }
+.lv-ilustra--pt .m-verm { fill: #c24a44; stroke: none; opacity: 0.88; }
+.lv-ilustra--pt .m-costa { fill: none; stroke: var(--l-tinta); stroke-width: 1.4; stroke-linejoin: round; }
+.lv-ilustra--pt .m-costa--ext { stroke: #2a4f9e; stroke-width: 6; opacity: 0.2; }
+.lv-ilustra--pt .m-moldura { fill: none; stroke: var(--l-tinta); stroke-width: 1.8; }
+.lv-ilustra--pt .m-moldura--int { stroke: var(--l-ouro); stroke-width: 1; }
+.lv-ilustra--pt .m-esfera circle, .lv-ilustra--pt .m-esfera ellipse, .lv-ilustra--pt .m-esfera path { fill: none; stroke: #f0c64a; stroke-width: 1.7; }
+.lv-ilustra--pt .m-esfera .m-escudo { fill: #fbf3e4; stroke: #8a2a2a; stroke-width: 0.9; }
+.lv-ilustra--pt .m-rota { fill: none; stroke: var(--l-rosa); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 0.5 6; animation: m-marcha 1.6s linear infinite; }
+.lv-ilustra--pt .m-carro path, .lv-ilustra--pt .m-carro circle { fill: #fbf3e4; stroke: var(--l-tinta); stroke-width: 1.1; }
+.lv-ilustra--pt .m-pin__o { fill: #fbf3e4; stroke: var(--l-tinta); stroke-width: 1.5; }
+.lv-ilustra--pt .m-pin__i { fill: var(--l-rosa); stroke: none; }
+.lv-ilustra--pt .m-etiq { font-family: var(--l-mao); font-size: 17px; fill: var(--l-tinta); stroke: #efe5cf; stroke-width: 3.2px; paint-order: stroke; stroke-linejoin: round; }
+.lv-ilustra--pt .m-nome { font-family: var(--l-serif); font-style: italic; font-size: 9px; letter-spacing: 0.28em; fill: var(--l-tinta-2); opacity: 0.8; }
+.lv-ilustra--pt .m-nome--esp { fill: #8a6f43; }
+.lv-ilustra--pt .m-nome--mar { fill: #2a4f9e; }
+.lv-ilustra--pt .m-rosa circle { fill: none; stroke: var(--l-tinta); stroke-width: 0.9; }
+.lv-ilustra--pt .m-rosa .m-rosa__f { stroke: var(--l-ouro); }
+.lv-ilustra--pt .m-rosa path { fill: var(--l-tinta); stroke: none; }
+.lv-ilustra--pt .m-rosa .m-rosa__n { fill: var(--l-rosa); }
+.lv-ilustra--pt .m-rosa text { font-family: var(--l-serif); font-size: 10px; fill: var(--l-tinta); }
+.lv-ilustra--pt .m-mastro > path { fill: none; stroke: var(--l-tinta); stroke-width: 1.8; }
+.lv-ilustra--pt .m-onda { transform-box: fill-box; transform-origin: left center; animation: lv-onda 2.4s ease-in-out infinite; }
+.lv-ilustra--pt .m-onda .m-verde, .lv-ilustra--pt .m-onda .m-verm { stroke: var(--l-tinta); stroke-width: 0.9; opacity: 0.95; }
+.lv-ilustra--pt .m-sol { fill: #f0c64a; stroke: #8a6a1a; stroke-width: 0.9; }
+.lv-ilustra--pt .m-clica { font-family: var(--l-mao); font-size: 24px; fill: var(--l-rosa); text-anchor: middle; }
+.lv-ilustra--pt .m-seta { fill: none; stroke: var(--l-rosa); stroke-width: 1.6; stroke-linecap: round; }
+.lv-ilustra--pt .m-convite { animation: lv-convite 2.6s ease-in-out infinite; }
+@keyframes m-marcha { to { stroke-dashoffset: -13; } }
+@media (prefers-reduced-motion: reduce) { .lv-ilustra--pt .m-rota, .lv-ilustra--pt .m-onda, .lv-ilustra--pt .m-convite { animation: none; } }
+
+/* página da viagem: só o mapa, grande, a usar quase a largura toda da folha */
+.lv-p--viagem .lv-mapa-btn { width: calc(100% + 0.6em); margin: 0.2em -0.3em 0.6em; }
+.lv-p--viagem .lv-ilustra--pt { max-height: 33em; }
+.lv-p--viagem .lv-mapa-btn { margin-top: 0.6em; }
+
+/* a página inteira é o mapa de Portugal */
+.lv-p--viagem .lv-corpo { display: flex; flex-direction: column; }
+.lv-p--viagem .lv-mapa-btn { flex: 1 1 0; min-height: 0; width: calc(100% + 0.6em); margin: 0 -0.3em; }
+.lv-p--viagem .lv-ilustra--pt { width: 100%; height: 100%; max-height: none; }
+.lv-ilustra--pt .m-clica { font-size: 21px; }
+
+/* ---------- página-cartaz: uma fotografia grande e uma frase escrita à mão ---------- */
+.lv-p--imagem .lv-corpo { display: flex; flex-direction: column; justify-content: center; gap: 1.6em; }
+.lv-cartaz__foto {
+  position: relative; margin: 0.9em 1.1em 0.7em; padding: 0.5em; background: #fffdf7; transform: rotate(-1.4deg);
+  box-shadow: 0 1px 1px rgba(40, 30, 20, 0.25), 0 14px 26px -12px rgba(31, 39, 71, 0.55);
+}
+.lv-cartaz__foto::after { content: ""; position: absolute; inset: 0.22em; border: 1px solid rgba(212, 174, 92, 0.75); pointer-events: none; }
+.lv-cartaz__quadro { position: relative; aspect-ratio: var(--ar, 1.5); max-height: 21em; width: 100%; overflow: hidden; background: #d9cdb5 center / cover no-repeat; }
+.lv-cartaz__quadro img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.6s; }
+.lv-cartaz__quadro.is-ok img { opacity: 1; }
+.lv-cartaz__fita { position: absolute; z-index: 2; width: 3.6em; height: 1.1em; box-shadow: 0 1px 1px rgba(60, 30, 30, 0.12); }
+.lv-cartaz__fita--a { top: -0.35em; left: -0.55em; transform: rotate(-34deg); background: repeating-linear-gradient(90deg, rgba(232, 160, 172, 0.78) 0 6px, rgba(240, 186, 194, 0.78) 6px 12px); }
+.lv-cartaz__fita--b { bottom: -0.35em; right: -0.55em; transform: rotate(-30deg); background: repeating-linear-gradient(90deg, rgba(170, 196, 228, 0.8) 0 6px, rgba(196, 214, 238, 0.8) 6px 12px); }
+.lv-cartaz__txt { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.lv-cartaz__l { margin: 0; font-family: var(--l-mao); line-height: 0.95; }
+.lv-cartaz__l1 { font-size: 2.6em; color: var(--l-azul); transform: rotate(-2.5deg) translateX(-1.2em); }
+.lv-cartaz__l2 { margin: 0.2em 0 0.05em; font-family: var(--l-serif); font-style: italic; font-size: 0.95em; letter-spacing: 0.1em; color: var(--l-tinta-2); }
+.lv-cartaz__ult { font-size: 3.9em; color: var(--l-rosa); transform: rotate(-2deg) translateX(0.6em); }
+.lv-cartaz__traco { width: 62%; height: 0.8em; margin-top: -0.1em; fill: none; stroke: var(--l-ouro); stroke-width: 1.8; stroke-linecap: round; transform: translateX(0.6em) rotate(-1.5deg); }
+@media (prefers-reduced-motion: reduce) { .lv-cartaz__quadro img { transition: none; } }
+
+/* ---------------------------------------------------------------- p.29 · o nosso gambito */
+.lv-p--xadrez .lv-corpo { justify-content: flex-start; padding-top: 0.2em; }
+.lv-gx__cena { position: relative; margin: 0.3em 0.2em 0.9em; border-radius: 0.35em; overflow: visible; box-shadow: 0 10px 22px -12px rgba(15, 20, 45, 0.7); }
+.gx-teto { display: block; width: 100%; height: 9.6em; border-radius: 0.35em; background: #0b1020; }
+.gx-ripas path { fill: none; stroke: #9db0ff; stroke-width: 0.6; opacity: 0.12; }
+.gx-est circle { fill: #e9eeff; }
+.gx-peca { opacity: 0.0; animation: gx-surge 6s ease-in-out infinite alternate; filter: drop-shadow(0 0 5px rgba(190, 205, 255, 0.55)); }
+.gx-peca--b { opacity: 0.5; }
+.gx-peca--p { opacity: 0.38; filter: invert(1) drop-shadow(0 0 5px rgba(190, 205, 255, 0.55)); }
+@keyframes gx-surge { from { transform-box: fill-box; transform-origin: center; translate: 0 1.5px; } to { transform-box: fill-box; transform-origin: center; translate: 0 -2px; } }
+.lv-gx__legenda { position: absolute; left: 0.8em; bottom: 0.35em; font-family: var(--l-mao); font-size: 1.35em; color: #dfe6ff; opacity: 0.85; text-shadow: 0 0 8px rgba(160, 180, 255, 0.5); }
+.lv-gx__poster { position: absolute; right: -0.3em; bottom: -1.5em; width: 22%; margin: 0; padding: 0.28em; background: #fffdf7; transform: rotate(4deg); box-shadow: 0 1px 1px rgba(40, 30, 20, 0.3), 0 8px 14px -6px rgba(15, 20, 45, 0.6); }
+.lv-gx__poster img { display: block; width: 100%; height: auto; }
+.lv-gx__fita { position: absolute; top: -0.45em; left: 50%; width: 2.6em; height: 0.9em; margin-left: -1.3em; background: repeating-linear-gradient(90deg, rgba(232, 200, 120, 0.85) 0 5px, rgba(240, 214, 150, 0.85) 5px 10px); transform: rotate(-3deg); }
+.lv-gx__tab { display: block; width: 15.6em; max-width: 78%; margin: 0.3em auto 0.7em; padding: 0.42em; border: 0; border-radius: 0.3em; cursor: pointer; background: linear-gradient(145deg, #7a4a26, #4e2e16); box-shadow: 0 12px 20px -10px rgba(40, 20, 8, 0.75), inset 0 0 0 1px rgba(255, 220, 160, 0.25); transition: transform 0.35s cubic-bezier(.2, .8, .2, 1), box-shadow 0.35s; }
+.lv-gx__tab:hover, .lv-gx__tab:focus-visible { transform: translateY(-3px) rotate(-0.6deg); box-shadow: 0 18px 26px -12px rgba(40, 20, 8, 0.8), inset 0 0 0 1px rgba(255, 220, 160, 0.4); outline: none; }
+.lv-gx__grelha { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; border: 1px solid rgba(20, 10, 4, 0.55); }
+.gx-q { position: relative; display: block; }
+.gx-q--c { background: #efdfba; }
+.gx-q--e { background: #b98a5a; }
+.gx-q--ult::before { content: ""; position: absolute; inset: 0; background: rgba(214, 90, 120, 0.38); }
+.gx-q img { position: absolute; inset: 6%; width: 88%; height: 88%; display: block; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35)); transition: transform 0.3s; }
+.lv-gx__tab:hover .gx-q img { transform: translateY(-1px) scale(1.04); }
+.gx-n, .gx-l { position: absolute; font: 700 0.5em/1 var(--l-serif); opacity: 0.55; pointer-events: none; }
+.gx-q--c .gx-n, .gx-q--c .gx-l { color: #8f6a40; } .gx-q--e .gx-n, .gx-q--e .gx-l { color: #f3e4c4; }
+.gx-n { top: 3%; left: 6%; } .gx-l { right: 6%; bottom: 3%; }
+.lv-gx__txt { margin-top: 0.2em; }
+@media (prefers-reduced-motion: reduce) { .gx-peca { animation: none; } }
+
+/* ---------------------------------------------------------------- p.30 · os chefs (retrato) */
+.lv-cartaz__foto--retrato { width: fit-content; margin-left: auto; margin-right: auto; }
+.lv-cartaz__foto--retrato .lv-cartaz__quadro { width: calc(var(--ar) * 17em); max-height: none; }
+
+/* ---------------------------------------------------------------- p.31 · a ementa */
+.lv-p--ementa .lv-corpo { text-align: left; padding-inline: 0.4em; }
+.lv-ementa__sobre { text-align: center; }
+.lv-ementa__tit { text-align: center; font-size: 1.85em; }
+.lv-ementa__grupo { margin: 1.1em 0 0.55em; text-align: center; font-family: var(--l-mao); font-size: 1.55em; line-height: 1; color: var(--l-rosa); }
+.lv-ementa__item { margin: 0 0 0.75em; }
+.lv-ementa__linha { display: flex; align-items: baseline; gap: 0.4em; margin: 0; }
+.lv-ementa__nome { font-size: 1.12em; font-style: italic; font-weight: 500; color: var(--l-tinta); white-space: nowrap; }
+.lv-ementa__pontos { flex: 1; min-width: 1em; border-bottom: 1.5px dotted rgba(42, 79, 158, 0.45); transform: translateY(-0.28em); }
+.lv-ementa__preco { font-family: var(--l-mao); font-size: 1.1em; color: var(--l-azul); white-space: nowrap; }
+.lv-ementa__nota { margin: 0.12em 0 0 0.1em; font-size: 0.8em; line-height: 1.4; color: var(--l-tinta-2); }
+.lv-ementa__fim { margin: 1em 0 0.2em; text-align: center; font-family: var(--l-mao); font-size: 1.7em; color: var(--l-rosa); transform: rotate(-1.5deg); }
+/* ajustes finos p.29–31 */
+.gx-teto { height: 11.2em; }
+.lv-gx__tab { width: 17.4em; max-width: 84%; }
+.gx-peca--b { opacity: 0.62; } .gx-peca--p { opacity: 0.5; }
+.lv-ementa__tit { font-size: 1.7em; }
+.lv-ementa__grupo { margin: 0.7em 0 0.4em; font-size: 1.4em; }
+.lv-ementa__item { margin: 0 0 0.5em; }
+.lv-ementa__nota { margin-top: 0.05em; font-size: 0.74em; line-height: 1.3; }
+.lv-ementa__nota.ph, .lv-p--ementa .ph { padding: 0.15em 0.5em; margin: 0.1em 0 0; }
+.lv-ementa__fim { margin: 0.5em 0 0.1em; font-size: 1.5em; }
+.lv-ementa__sobre { margin: 0.2em 0 0.3em; padding-bottom: 0.5em; border-bottom: 1px solid rgba(212, 174, 92, 0.7); }
+.lv-ementa__tit { margin-top: 0.3em; }
+.lv-p--ementa .ph { display: block; border: 0; background: none; padding: 0; margin: 0.05em 0 0; font-size: 0.72em; line-height: 1.25; }
+.lv-ementa__grupo { margin: 0.5em 0 0.3em; font-size: 1.3em; }
+.livro .lv-p--ementa p.ph { border: 0; background: none; padding: 0; margin: 0.05em 0 0; font-size: 0.7em; line-height: 1.2; }
+
+/* ================= p.29 · torneio de xadrez (anos 60, à Gambito de Dama) ================= */
+.lv-p--xadrez .lv-corpo { padding: 0; justify-content: stretch; }
+.lv-gx { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; margin: 0.1em 0.1em 0.2em; padding: 0.9em 0.9em 1.6em; overflow: hidden; border-radius: 0.3em; color: #f1e6cc;
+  background: linear-gradient(180deg, #0c1224 0%, #15213b 26%, #1f3b38 56%, #234238 100%); box-shadow: 0 14px 26px -14px rgba(10, 16, 34, 0.8), inset 0 0 0 1px rgba(224, 178, 92, 0.55), inset 0 0 0 4px #1a2d2a, inset 0 0 0 5px rgba(224, 178, 92, 0.35); }
+.lv-gx::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.1em; background: repeating-conic-gradient(#f1e6cc 0 25%, #1b1b1b 0 50%) 0 0 / 1.1em 1.1em; opacity: 0.9; }
+.lv-gx .gx-teto { position: absolute; left: 0; top: 0; width: 100%; height: 38%; border: 0; border-radius: 0; background: none; -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+.lv-gx__cab { position: relative; text-align: center; margin: 0.1em 0 0.7em; }
+.lv-gx__sobre { margin: 0; font-size: 0.62em; letter-spacing: 0.5em; text-transform: uppercase; color: #e0b25c; }
+.lv-gx__tit { margin: 0.1em 0 0; font-family: var(--l-serif); font-weight: 500; font-size: 1.85em; letter-spacing: 0.04em; line-height: 1.1; color: #fbf1d8; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55); }
+.lv-gx__vs { margin: 0.25em 0 0; font-family: var(--l-mao); font-size: 1.25em; color: #e0b25c; }
+.lv-gx .lv-gx__tab { position: relative; width: 18.2em; max-width: 92%; margin: 0 auto; padding: 0.7em; background: linear-gradient(140deg, #6d4120, #3c2210 55%, #5a3419); border-radius: 0.2em; box-shadow: 0 16px 24px -10px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 214, 150, 0.35), inset 0 0 0 0.35em #4a2b14, inset 0 0 0 calc(0.35em + 1px) rgba(255, 214, 150, 0.25); }
+.lv-gx .lv-gx__tab:hover, .lv-gx .lv-gx__tab:focus-visible { transform: translateY(-3px) rotate(-0.5deg); }
+.lv-gx .gx-q--c { background: #ecdcb4; }
+.lv-gx .gx-q--e { background: #7d5230; }
+.lv-gx .gx-q--c .gx-n, .lv-gx .gx-q--c .gx-l { color: #7d5230; }
+.lv-gx .gx-q--e .gx-n, .lv-gx .gx-q--e .gx-l { color: #ecdcb4; }
+.lv-gx .gx-q--ult::before { background: rgba(224, 178, 92, 0.5); }
+.lv-gx__mesa { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 1.6em; margin: 1.1em 0 0.3em; }
+.lv-gx__folha { display: flex; flex-direction: column; gap: 0.12em; padding: 0.55em 0.8em 0.6em; background: #f3ead2; color: #3a3226; font: 0.72em/1.35 "Spline Sans Mono", "Courier New", monospace; transform: rotate(-2.5deg); box-shadow: 0 8px 14px -6px rgba(0, 0, 0, 0.7); background-image: repeating-linear-gradient(transparent 0 1.35em, rgba(60, 80, 140, 0.18) 1.35em calc(1.35em + 1px)); }
+.lv-gx__folha b { font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid #3a3226; margin-bottom: 0.2em; }
+.lv-gx__folha i { font-family: var(--l-mao); font-size: 1.6em; line-height: 1; color: #b9405c; margin-top: 0.1em; }
+.lv-gx .lv-gx__poster { position: relative; right: auto; bottom: auto; width: 5.4em; transform: rotate(4deg); }
+.lv-gx__dica { position: relative; margin: 0.4em 0 0; font-family: var(--l-mao); font-size: 1.15em; color: #e8dcbc; opacity: 0.85; }
+.lv-gx .lv-gx__cena, .lv-gx .lv-gx__legenda { display: none; }
+
+/* ================= p.31 · menu ================= */
+.lv-p--ementa .lv-corpo { text-align: center; margin: 0.2em; padding: 1.1em 1.3em 1em; border: 1px solid rgba(190, 150, 70, 0.85); outline: 1px solid rgba(190, 150, 70, 0.55); outline-offset: -6px; border-radius: 0.2em; background: radial-gradient(120% 90% at 50% 0, rgba(255, 252, 240, 0.55), transparent 70%); }
+.lv-ementa__sobre { margin: 0; padding: 0; border: 0; font-size: 0.62em; letter-spacing: 0.5em; color: var(--l-rosa); text-align: center; }
+.lv-ementa__tit { margin: 0.05em 0 0; font-family: var(--l-mao); font-style: normal; font-weight: 400; font-size: 3.4em; line-height: 1; color: var(--l-azul); }
+.lv-ementa__sub { margin: 0.2em 0 0.5em; font-style: italic; font-size: 0.85em; color: var(--l-tinta-2); }
+.lv-ementa__grupo { display: flex; align-items: center; gap: 0.7em; margin: 0.7em 0 0.4em; font-family: var(--l-mao); font-size: 1.5em; line-height: 1; color: var(--l-rosa); }
+.lv-ementa__grupo i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(190, 150, 70, 0.9)); }
+.lv-ementa__grupo i:last-child { transform: scaleX(-1); }
+.lv-ementa__item { margin: 0 0 0.3em; }
+.lv-ementa__linha { display: flex; align-items: center; justify-content: center; gap: 0.6em; margin: 0; }
+.lv-ementa__ico { flex: none; width: 1.35em; height: 1.35em; fill: none; stroke: var(--l-azul); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
+.lv-ementa__nome { font-style: italic; font-size: 1.12em; letter-spacing: 0.02em; color: var(--l-tinta); }
+.lv-ementa__fim { margin: 0.7em 0 0; font-family: var(--l-mao); font-size: 1.6em; color: var(--l-rosa); transform: rotate(-1.5deg); }
+/* afinação p.29 e p.31 */
+.lv-gx { padding-bottom: 1.9em; }
+.lv-gx .lv-gx__tab { width: 16em; }
+.lv-gx .gx-teto { height: 30%; opacity: 0.75; }
+.lv-gx__cab { margin-bottom: 0.5em; }
+.lv-gx__mesa { margin-top: 0.8em; align-items: center; }
+.lv-gx .lv-gx__poster { width: 4.6em; }
+.lv-gx__dica { margin-top: 0.15em; font-size: 1.05em; }
+.lv-p--ementa .lv-corpo { padding: 0.8em 1.1em 0.7em; }
+.lv-ementa__tit { font-size: 2.7em; }
+.lv-ementa__sub { margin: 0.1em 0 0.3em; font-size: 0.8em; }
+.lv-ementa__grupo { margin: 0.45em 0 0.25em; font-size: 1.35em; }
+.lv-ementa__item { margin: 0 0 0.1em; }
+.lv-ementa__nome { font-size: 1.04em; }
+.lv-ementa__ico { width: 1.2em; height: 1.2em; }
+.lv-ementa__fim { margin-top: 0.4em; font-size: 1.45em; }
+.lv-gx .lv-gx__tab { width: 15em; }
+.lv-gx__dica { margin-top: 0.3em; }
+.lv-ementa__item { margin-bottom: 0.25em; }
+.lv-ementa__grupo { margin-top: 0.6em; }
+.lv-ementa__grade { display: grid; grid-template-columns: 1fr 1fr; gap: 0.2em 0.6em; margin: 0.1em 0 0.25em; }
+.lv-ementa__grade .lv-ementa__item { margin: 0; }
+.lv-ementa__grade .lv-ementa__linha { justify-content: flex-start; padding-left: 0.6em; }
+
+/* post-it colado na fotografia (p.38) */
+.lv-comPostit { position: relative; }
+.lv-postit { position: absolute; right: 0.2em; bottom: -0.2em; z-index: 5; width: 8.4em; min-height: 7.4em; padding: 1.5em 0.8em 0.9em; display: flex; align-items: center; justify-content: center; text-align: center; transform: rotate(5deg);
+  background: linear-gradient(170deg, #fff08a 0%, #ffe45c 100%); color: #3b3a63; font-family: var(--l-mao); font-size: 1.55em; line-height: 1.05;
+  box-shadow: 0 1px 1px rgba(80, 60, 0, 0.25), 0 12px 16px -8px rgba(60, 40, 0, 0.6); border-bottom-right-radius: 1.2em 0.5em; }
+.lv-postit__fita { position: absolute; top: 0; left: 0; right: 0; height: 1.1em; background: linear-gradient(180deg, rgba(0, 0, 0, 0.07), transparent); }
+.lv-postit span { display: block; transform: rotate(-2deg); }
+.lv-postit { font-size: 2.1em; width: 6.6em; min-height: 5.6em; padding: 1.1em 0.5em 0.6em; line-height: 1; color: #2f2e5c; }
+.lv-postit { font-size: 2.7em; width: 5.6em; min-height: 4.9em; padding: 0.95em 0.4em 0.5em; line-height: 0.98; }
+.lv-danca__txt { font-family: var(--l-mao); font-size: 1.7em; line-height: 1.1; text-align: center; color: var(--l-tinta); }
+.lv-danca__cor { color: var(--l-rosa); margin-left: 0.15em; display: inline-block; animation: lv-bate 1.4s ease-in-out infinite; }
+@keyframes lv-bate { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } 45% { transform: scale(1.18); } }
+@media (prefers-reduced-motion: reduce) { .lv-danca__cor { animation: none; } }
+.livro .lv-p--danca .lv-danca__txt { font-family: var(--l-mao); font-size: 2em; line-height: 1.05; font-style: normal; color: var(--l-tinta); text-align: center; margin-top: 0.1em; }
+.livro .lv-p--danca .lv-danca__txt { font-size: 2.7em; }

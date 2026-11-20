@@ -1,0 +1,12 @@
+>>> boot --mundo=diogo
+[ ok ] núcleo carregado: matemática, código, café
+[ ok ] firewall ativa. portas abertas: 0
+>>> ls ~/
+dados/  modelos/  segredos/  catarina/
+>>> cd catarina/
+[aviso] este diretório não tem fim
+>>> cat catarina/*.txt | wc -l
+erro: contagem excede a capacidade (1461 dias, a crescer)
+>>> diagnostico --porque-estou-a-sorrir
+resultado: dentro de uma história de amor. sem saída. sem vontade de sair.
+>>> iniciar computador --modo=coração
